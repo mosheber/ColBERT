@@ -1,7 +1,6 @@
-from colbert.infra.run import Run
-from colbert.infra.launcher import Launcher
 from colbert.infra.config import ColBERTConfig, RunConfig
-
+from colbert.infra.launcher import Launcher
+from colbert.infra.run import Run
 from colbert.training.training import train
 
 
@@ -16,9 +15,9 @@ class Trainer:
     def configure(self, **kw_args):
         self.config.configure(**kw_args)
 
-    def train(self, checkpoint='bert-base-uncased'):
+    def train(self, checkpoint="bert-base-uncased"):
         """
-            Note that config.checkpoint is ignored. Only the supplied checkpoint here is used.
+        Note that config.checkpoint is ignored. Only the supplied checkpoint here is used.
         """
 
         # Resources don't come from the config object. They come from the input parameters.
@@ -28,9 +27,9 @@ class Trainer:
 
         launcher = Launcher(train)
 
-        self._best_checkpoint_path = launcher.launch(self.config, self.triples, self.queries, self.collection)
-
+        self._best_checkpoint_path = launcher.launch(
+            self.config, self.triples, self.queries, self.collection
+        )
 
     def best_checkpoint_path(self):
         return self._best_checkpoint_path
-

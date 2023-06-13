@@ -1,13 +1,11 @@
 import random
-from colbert.infra.provenance import Provenance
 
-from utility.utils.save_metadata import save_metadata
-from utility.supervision.triples import sample_for_query
-
-from colbert.utils.utils import print_message
-
-from colbert.data.ranking import Ranking
 from colbert.data.examples import Examples
+from colbert.data.ranking import Ranking
+from colbert.infra.provenance import Provenance
+from colbert.utility.supervision.triples import sample_for_query
+from colbert.utility.utils.save_metadata import save_metadata
+from colbert.utils.utils import print_message
 
 MAX_NUM_TRIPLES = 40_000_000
 
@@ -33,12 +31,14 @@ class Triples:
 
         for processing_idx, qid in enumerate(self.qid2rankings):
             l = sample_for_query(qid, self.qid2rankings[qid], positives, depth, False, None)
-            NonEmptyQIDs += (len(l) > 0)
+            NonEmptyQIDs += len(l) > 0
             Triples.extend(l)
 
             if processing_idx % (10_000) == 0:
-                print_message(f"#> Done with {processing_idx+1} questions!\t\t "
-                              f"{str(len(Triples) / 1000)}k triples for {NonEmptyQIDs} unqiue QIDs.")
+                print_message(
+                    f"#> Done with {processing_idx+1} questions!\t\t "
+                    f"{str(len(Triples) / 1000)}k triples for {NonEmptyQIDs} unqiue QIDs."
+                )
 
         print_message(f"#> Sub-sample the triples (if > {MAX_NUM_TRIPLES})..")
         print_message(f"#> len(Triples) = {len(Triples)}")
@@ -56,7 +56,7 @@ class Triples:
 
     def save(self, new_path):
         provenance = Provenance()
-        provenance.source = 'Triples::create'
+        provenance.source = "Triples::create"
         provenance.seed = self.seed
         provenance.positives = self.positives
         provenance.depth = self.depth

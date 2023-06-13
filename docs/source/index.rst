@@ -10,10 +10,7 @@ API Components
 --------------
 
 .. toctree::
-   
+
    trainer
    indexer
    searcher
-
-
-

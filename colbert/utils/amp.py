@@ -1,10 +1,10 @@
-import torch
-
 from contextlib import contextmanager
+
+import torch
 from colbert.utils.utils import NullContextManager
 
 
-class MixedPrecisionManager():
+class MixedPrecisionManager:
     def __init__(self, activated):
         self.activated = activated
 
@@ -30,7 +30,7 @@ class MixedPrecisionManager():
         else:
             torch.nn.utils.clip_grad_norm_(colbert.parameters(), 2.0)
             optimizer.step()
-        
+
         if scheduler is not None:
             scheduler.step()
 

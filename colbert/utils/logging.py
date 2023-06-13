@@ -1,14 +1,16 @@
 import os
 import sys
-import ujson
+
 # import mlflow
 import traceback
 
+import ujson
+
 # from torch.utils.tensorboard import SummaryWriter
-from colbert.utils.utils import print_message, create_directory
+from colbert.utils.utils import create_directory, print_message
 
 
-class Logger():
+class Logger:
     def __init__(self, rank, run):
         self.rank = rank
         self.is_main = self.rank in [-1, 0]
@@ -23,7 +25,7 @@ class Logger():
     # def _init_mlflow(self):
     #     mlflow.set_tracking_uri('file://' + os.path.join(self.run.experiments_root, "logs/mlruns/"))
     #     mlflow.set_experiment('/'.join([self.run.experiment, self.run.script]))
-        
+
     #     mlflow.set_tag('experiment', self.run.experiment)
     #     mlflow.set_tag('name', self.run.name)
     #     mlflow.set_tag('path', self.run.path)
@@ -40,9 +42,9 @@ class Logger():
         if not self.is_main:
             return
 
-        output_path = os.path.join(self.logs_path, 'exception.txt')
-        trace = ''.join(traceback.format_exception(etype, value, tb)) + '\n'
-        print_message(trace, '\n\n')
+        output_path = os.path.join(self.logs_path, "exception.txt")
+        trace = "".join(traceback.format_exception(etype, value, tb)) + "\n"
+        print_message(trace, "\n\n")
 
         self.log_new_artifact(output_path, trace)
 
@@ -66,8 +68,8 @@ class Logger():
         #     ujson.dump(args.input_arguments.__dict__, output_metadata, indent=4)
         #     output_metadata.write('\n')
 
-        with open(os.path.join(self.logs_path, 'args.txt'), 'w') as output_metadata:
-            output_metadata.write(' '.join(sys.argv) + '\n')
+        with open(os.path.join(self.logs_path, "args.txt"), "w") as output_metadata:
+            output_metadata.write(" ".join(sys.argv) + "\n")
 
     def log_metric(self, name, value, step, log_to_mlflow=True):
         if not self.is_main:
@@ -81,19 +83,19 @@ class Logger():
         # self.writer.add_scalar(name, value, step)
 
     def log_new_artifact(self, path, content):
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             f.write(content)
 
         # mlflow.log_artifact(path)
 
     def warn(self, *args):
-        msg = print_message('[WARNING]', '\t', *args)
+        msg = print_message("[WARNING]", "\t", *args)
 
-        with open(os.path.join(self.logs_path, 'warnings.txt'), 'a') as output_metadata:
-            output_metadata.write(msg + '\n\n\n')
+        with open(os.path.join(self.logs_path, "warnings.txt"), "a") as output_metadata:
+            output_metadata.write(msg + "\n\n\n")
 
     def info_all(self, *args):
-        print_message('[' + str(self.rank) + ']', '\t', *args)
+        print_message("[" + str(self.rank) + "]", "\t", *args)
 
     def info(self, *args):
         if self.is_main:

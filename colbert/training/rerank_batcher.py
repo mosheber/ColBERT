@@ -1,24 +1,25 @@
 import os
-import ujson
-
 from functools import partial
-from colbert.infra.config.config import ColBERTConfig
-from colbert.utils.utils import flatten, print_message, zipstar
-from colbert.modeling.reranker.tokenizer import RerankerTokenizer
 
+import ujson
 from colbert.data.collection import Collection
-from colbert.data.queries import Queries
 from colbert.data.examples import Examples
+from colbert.data.queries import Queries
+from colbert.infra.config.config import ColBERTConfig
+from colbert.modeling.reranker.tokenizer import RerankerTokenizer
+from colbert.utils.utils import flatten, print_message, zipstar
 
 # from colbert.utils.runs import Run
 
 
-class RerankBatcher():
+class RerankBatcher:
     def __init__(self, config: ColBERTConfig, triples, queries, collection, rank=0, nranks=1):
         self.bsize, self.accumsteps = config.bsize, config.accumsteps
         self.nway = config.nway
-        
-        assert self.accumsteps == 1, "The tensorizer doesn't support larger accumsteps yet --- but it's easy to add."
+
+        assert (
+            self.accumsteps == 1
+        ), "The tensorizer doesn't support larger accumsteps yet --- but it's easy to add."
 
         self.tokenizer = RerankerTokenizer(total_maxlen=config.doc_maxlen, base=config.checkpoint)
         self.position = 0
@@ -44,7 +45,7 @@ class RerankBatcher():
 
         for position in range(offset, endpos):
             query, *pids = self.triples[position]
-            pids = pids[:self.nway]
+            pids = pids[: self.nway]
 
             query = self.queries[query]
 
@@ -58,7 +59,7 @@ class RerankBatcher():
             all_queries.append(query)
             all_passages.extend(passages)
             all_scores.extend(scores)
-        
+
         assert len(all_scores) in [0, len(all_passages)], len(all_scores)
 
         return self.collate(all_queries, all_passages, all_scores)

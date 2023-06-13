@@ -2,7 +2,7 @@
 
 The <b>Lo</b>ng-<b>T</b>ail <b>T</b>opic-stratified <b>E</b>valuation (LoTTE) benchmark includes 12 domain-specific datasets derived from StackExchange questions and answers. Datasets span topics including writing, recreation, science, technology, and lifestyle. LoTTE includes two sets of queries: the first set is comprised of search-based queries from the GooAQ dataset, while the second set is comprised of forum-based queries taken directly from StackExchange.
 
-The dataset can be downloaded from this link: [https://downloads.cs.stanford.edu/nlp/data/colbert/colbertv2/lotte.tar.gz](https://downloads.cs.stanford.edu/nlp/data/colbert/colbertv2/lotte.tar.gz) 
+The dataset can be downloaded from this link: [https://downloads.cs.stanford.edu/nlp/data/colbert/colbertv2/lotte.tar.gz](https://downloads.cs.stanford.edu/nlp/data/colbert/colbertv2/lotte.tar.gz)
 
 The dataset is organized as follows:
 ```
@@ -47,7 +47,7 @@ Here is a description of each file's contents:
 		"query": query,
 		"answer_pids": answer_pids
 	}
-``` 
+```
 - `questions.forum.tsv`: A list of forum-based questions
 - `qas.forum.tsv`: A list of JSON dictionaries for each forum-based question's answer data
 
@@ -91,4 +91,3 @@ This will produce the following output (numbers taken from the ColBERTv2 evaluat
 [query_type=forum, dataset=lifestyle] Success@5: 76.9
 [query_type=forum, dataset=pooled] Success@5: 63.4
 ```
-

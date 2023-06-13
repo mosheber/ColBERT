@@ -1,21 +1,19 @@
 import os
-import time
-import torch
 import random
+import time
 
-import torch.multiprocessing as mp
 import numpy as np
+import torch
+import torch.multiprocessing as mp
 
 try:
-    mp.set_start_method('spawn', force=True)
+    mp.set_start_method("spawn", force=True)
 except RuntimeError:
     pass
 
 import colbert.utils.distributed as distributed
-
-from colbert.infra.run import Run
 from colbert.infra.config import BaseConfig, RunConfig, RunSettings
-
+from colbert.infra.run import Run
 from colbert.utils.utils import print_message
 
 
@@ -31,14 +29,18 @@ class Launcher:
         return_value_queue = mp.Queue()
 
         rng = random.Random(time.time())
-        port = str(12355 + rng.randint(0, 1000))  # randomize the port to avoid collision on launching several jobs.
+        port = str(
+            12355 + rng.randint(0, 1000)
+        )  # randomize the port to avoid collision on launching several jobs.
 
         all_procs = []
         for new_rank in range(0, self.nranks):
             assert isinstance(custom_config, BaseConfig)
             assert isinstance(custom_config, RunSettings)
 
-            new_config = type(custom_config).from_existing(custom_config, self.run_config, RunConfig(rank=new_rank))
+            new_config = type(custom_config).from_existing(
+                custom_config, self.run_config, RunConfig(rank=new_rank)
+            )
 
             args_ = (self.callee, port, return_value_queue, new_config, *args)
             all_procs.append(mp.Process(target=setup_new_process, args=args_))
@@ -63,13 +65,13 @@ class Launcher:
 
         # print_message(f"[Post-Emptying] GPU memory check: r={r}, a={a}, f={f}")
 
-        print_memory_stats('MAIN')
+        print_memory_stats("MAIN")
 
         for proc in all_procs:
             print("#> Starting...")
             proc.start()
 
-        print_memory_stats('MAIN')
+        print_memory_stats("MAIN")
 
         # TODO: If the processes crash upon join, raise an exception and don't block on .get() below!
 
@@ -78,13 +80,13 @@ class Launcher:
 
         if not self.return_all:
             return_values = return_values[0]
-        
+
         for proc in all_procs:
             proc.join()
             print("#> Joined...")
 
-        print_memory_stats('MAIN')
-        
+        print_memory_stats("MAIN")
+
         return return_values
 
 
@@ -104,7 +106,7 @@ def setup_new_process(callee, port, return_value_queue, config, *args):
     os.environ["RANK"] = str(config.rank)
 
     # TODO: Ideally the gpus "getter" handles this max-nranks thing!
-    os.environ["CUDA_VISIBLE_DEVICES"] = ','.join(map(str, config.gpus_[:nranks]))
+    os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(map(str, config.gpus_[:nranks]))
 
     nranks_, distributed_ = distributed.init(rank)
     assert nranks_ == nranks
@@ -117,31 +119,38 @@ def setup_new_process(callee, port, return_value_queue, config, *args):
     return_value_queue.put((rank, return_val))
 
 
-def print_memory_stats(message=''):
+def print_memory_stats(message=""):
     return  # FIXME: Add this back before release.
 
-    import psutil  # Remove before releases? Or at least make optional with try/except.
+    # import psutil  # Remove before releases? Or at least make optional with try/except.
 
-    global_info = psutil.virtual_memory()
-    total, available, used, free = global_info.total, global_info.available, global_info.used, global_info.free
+    # global_info = psutil.virtual_memory()
+    # total, available, used, free = (
+    #     global_info.total,
+    #     global_info.available,
+    #     global_info.used,
+    #     global_info.free,
+    # )
 
-    info = psutil.Process().memory_info()
-    rss, vms, shared = info.rss, info.vms, info.shared
-    uss = psutil.Process().memory_full_info().uss
+    # info = psutil.Process().memory_info()
+    # rss, vms, shared = info.rss, info.vms, info.shared
+    # uss = psutil.Process().memory_full_info().uss
 
-    gib = 1024 ** 3
+    # gib = 1024**3
 
-    summary = f"""
-    "[PID: {os.getpid()}]
-    [{message}]
-    Available: {available / gib:,.1f} / {total / gib:,.1f}
-    Free: {free / gib:,.1f} / {total / gib:,.1f}
-    Usage: {used / gib:,.1f} / {total / gib:,.1f}
+    # summary = f"""
+    # "[PID: {os.getpid()}]
+    # [{message}]
+    # Available: {available / gib:,.1f} / {total / gib:,.1f}
+    # Free: {free / gib:,.1f} / {total / gib:,.1f}
+    # Usage: {used / gib:,.1f} / {total / gib:,.1f}
 
-    RSS: {rss  / gib:,.1f}
-    VMS: {vms  / gib:,.1f}
-    USS: {uss  / gib:,.1f}
-    SHARED: {shared  / gib:,.1f}
-    """.strip().replace('\n', '\t')
+    # RSS: {rss  / gib:,.1f}
+    # VMS: {vms  / gib:,.1f}
+    # USS: {uss  / gib:,.1f}
+    # SHARED: {shared  / gib:,.1f}
+    # """.strip().replace(
+    #     "\n", "\t"
+    # )
 
-    print_message(summary, pad=True)
+    # print_message(summary, pad=True)

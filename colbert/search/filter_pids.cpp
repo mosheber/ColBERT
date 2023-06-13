@@ -166,4 +166,3 @@ torch::Tensor filter_pids(const torch::Tensor pids,
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
     m.def("filter_pids_cpp", &filter_pids, "Filter pids");
 }
-
